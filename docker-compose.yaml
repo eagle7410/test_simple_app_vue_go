@@ -6,9 +6,22 @@ services:
     - "6060:6060"
     volumes:
     - ./back:/go/src/back
+    environment:
+      - DB_HOST=172.17.0.1
+      - DB_USER=root
+      - DB_PASS=eagle1547547000111
+      - DB_NAME=go_api
+      - DB_PORT=3306
   front:
     build: ./front/.
     ports:
     - "8080:8080"
     volumes:
     - ./front:/usr/src/app
+  docs:
+    image: swaggerapi/swagger-editor:latest
+    links:
+      - front
+      - back
+    ports:
+     - "8060:8080"

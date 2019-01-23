@@ -1,7 +1,11 @@
 # test_simple_app_vue_go
 
 App for test
-
+## Add ext
+```bash
+go get -u github.com/pressly/goose/cmd/goose
+```
+ 
 
 ## Version
 1.0.0 - base.
