@@ -11,15 +11,59 @@
 package swagger
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"io/ioutil"
+	"log"
 	"net/http"
 )
+
+func sendJsonMessage (w http.ResponseWriter, message string, code int) {
+	w.WriteHeader(code)
+
+	data, _ :=json.Marshal(ApiResponse{
+		Code: code,
+		Message: message,
+	})
+
+	fmt.Fprintf(w, string(data))
+}
+
+func logErr (err error) {
+	log.Printf("[0;31m DatabaseError: %s [39m \n", err)
+}
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	w.WriteHeader(http.StatusOK)
+	body, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		sendJsonMessage(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	user := User{}
+
+	err = json.Unmarshal(body, &user)
+
+	if err != nil {
+		sendJsonMessage(w, "Bad request json", http.StatusBadRequest)
+		return
+	}
+
+	_, err = user.Save()
+
+	if err != nil {
+		sendJsonMessage(w, "Not user save to database", http.StatusInternalServerError)
+		logErr(err)
+
+		return
+	}
+
+	sendJsonMessage(w, "Successful operation", http.StatusOK)
+
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
