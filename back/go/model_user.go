@@ -10,22 +10,47 @@
 
 package swagger
 
-type User struct {
+type (
+	User struct {
+		Id int64 `json:"id,omitempty"`
+		Username string `json:"username,omitempty"`
+		FirstName string `json:"firstName,omitempty"`
+		LastName string `json:"lastName,omitempty"`
+		Email string `json:"email"`
+		Password string `json:"password"`
+		Phone string `json:"phone,omitempty"`
+		// User Status
+		UserStatus int32 `json:"userStatus,omitempty"`
+	}
+)
 
-	Id int64 `json:"id,omitempty"`
+func (i *User) insert () (insertId int64, err error) {
+	result, err := DB.Exec(
+		"INSERT INTO users (Username, FirstName, LastName, Email, Password, Phone, UserStatus) " +
+			"VALUES(?, ?, ?, ?, ?, ?, ?)",
+		&i.Username,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.Password,
+		&i.Phone,
+		&i.UserStatus,
+	)
 
-	Username string `json:"username,omitempty"`
+	if err != nil {
+		return 0, err
+	}
 
-	FirstName string `json:"firstName,omitempty"`
+	return result.LastInsertId()
+}
 
-	LastName string `json:"lastName,omitempty"`
+func (i *User) Save() (Id int64, err error) {
 
-	Email string `json:"email"`
+	if i.Id == 0 {
+		i.Id, err = i.insert()
 
-	Password string `json:"password"`
+		return i.Id, err
+	}
 
-	Phone string `json:"phone,omitempty"`
-
-	// User Status
-	UserStatus int32 `json:"userStatus,omitempty"`
+	return 0, nil
 }
