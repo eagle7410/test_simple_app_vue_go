@@ -21,6 +21,7 @@ type (
 		Phone string `json:"phone,omitempty"`
 		// User Status
 		UserStatus int32 `json:"userStatus,omitempty"`
+		IsNew bool
 	}
 )
 
@@ -46,7 +47,7 @@ func (i *User) insert () (insertId int64, err error) {
 
 func (i *User) Save() (Id int64, err error) {
 
-	if i.Id == 0 {
+	if i.IsNew {
 		i.Id, err = i.insert()
 
 		return i.Id, err

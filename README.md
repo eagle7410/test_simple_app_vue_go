@@ -1,6 +1,7 @@
 # test_simple_app_vue_go
 
 App for test
+Go test frame work is [goconvey](http://goconvey.co/)
 ## Add ext
 ```bash
 go get -u github.com/pressly/goose/cmd/goose

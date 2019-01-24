@@ -11,7 +11,7 @@
 package main
 
 import (
-	sw "./go"
+	sw "back/go"
 	"log"
 	"net/http"
 )

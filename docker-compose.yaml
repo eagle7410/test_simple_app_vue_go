@@ -1,7 +1,8 @@
 version: '3'
 services:
   back:
-    build: ./back/.
+    build:
+      context: ./back/.
     ports:
     - "6060:6060"
     volumes:
@@ -12,16 +13,30 @@ services:
       - DB_PASS=eagle1547547000111
       - DB_NAME=go_api
       - DB_PORT=3306
-  front:
-    build: ./front/.
+  back_test:
+    build:
+      context: ./back/.
+      dockerfile: Dockerfile.test
     ports:
-    - "8080:8080"
+      - "6065:8080"
     volumes:
-    - ./front:/usr/src/app
-  docs:
-    image: swaggerapi/swagger-editor:latest
-    links:
-      - front
-      - back
-    ports:
-     - "8060:8080"
+      - ./back:/go/src/back
+    environment:
+      - DB_HOST=172.17.0.1
+      - DB_USER=root
+      - DB_PASS=eagle1547547000111
+      - DB_NAME=go_api
+      - DB_PORT=3306
+#  front:
+#    build: ./front/.
+#    ports:
+#    - "8080:8080"
+#    volumes:
+#    - ./front:/usr/src/app
+#  docs:
+#    image: swaggerapi/swagger-editor:latest
+#    links:
+#      - front
+#      - back
+#    ports:
+#     - "8060:8080"
