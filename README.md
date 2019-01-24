@@ -6,7 +6,14 @@ App for test
 go get -u github.com/pressly/goose/cmd/goose
 ```
  
-
+Maybe use /back/go/.env
+```.env
+DB_HOST=localhost
+DB_USER=user
+DB_PASS=pass
+DB_NAME=db
+DB_PORT=3306
+```
 ## Version
 1.0.0 - base.
 

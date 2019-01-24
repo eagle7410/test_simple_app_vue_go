@@ -1,8 +1,10 @@
 package swagger
 
 import (
+	"fmt"
 	"github.com/joho/godotenv"
 	"os"
+	"path"
 )
 
 type env struct {
@@ -11,13 +13,19 @@ type env struct {
 
 func (i *env) Init () error {
 
-	if _, err := os.Stat("./.env"); err == nil {
+	pwd, err := os.Getwd()
 
-		if (!os.IsNotExist(err)) {
-			return  err
-		}
+	fmt.Println(pwd)
 
-		err := godotenv.Load()
+	if err != nil {
+		return err
+	}
+
+	envPath := path.Join(pwd, ".env")
+
+	if _, err := os.Stat(envPath); err == nil {
+
+		err := godotenv.Load(envPath)
 
 		if err != nil {
 			return err;
