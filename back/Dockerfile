@@ -1,6 +1,6 @@
 FROM golang:1.10
 
-WORKDIR /go/src/test_simple_app_vue_go/back
+WORKDIR /go/src/back
 COPY . .
 RUN ["go", "get", "github.com/gorilla/mux"]
 RUN ["go", "get", "github.com/joho/godotenv"]

@@ -48,6 +48,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = json.Unmarshal(body, &user)
 
+	fmt.Printf("UNAME %v",user.Username)
+
 	if err != nil {
 		sendJsonMessage(w, "Bad request json", http.StatusBadRequest)
 		return
@@ -77,8 +79,24 @@ func GetUserByName(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	username := vars["username"] // the book title slug
 
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Hello " + username)
+	user := User{IsNew:false,}
+
+	err := user.LoadByName(username)
+
+	if err != nil {
+
+		if IsDbQueryEmpty(err) {
+			sendJsonMessage(w, "Not user not found", http.StatusNotFound)
+			return
+		}
+
+		sendJsonMessage(w, "Not load user from database", http.StatusInternalServerError)
+		logErr(err)
+
+		return
+	}
+
+	sendJsonMessage(w, "Hello " + username, http.StatusOK)
 }
 
 func LoginUser(w http.ResponseWriter, r *http.Request) {

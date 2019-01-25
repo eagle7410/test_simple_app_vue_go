@@ -9,6 +9,9 @@ var (
 	DB *sql.DB // global variable to share it between main and the HTTP handler
 )
 
+func IsDbQueryEmpty (err error) bool {
+	return err == sql.ErrNoRows
+}
 
 func DatabaseInit () error {
 	var (

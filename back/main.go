@@ -11,7 +11,7 @@
 package main
 
 import (
-	sw "back/go"
+	sw "test_simple_app_vue_go/back/go"
 	"log"
 	"net/http"
 )

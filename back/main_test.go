@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	sw "back/go"
+	sw "test_simple_app_vue_go/back/go"
 	"testing"
 )
 
@@ -36,6 +36,7 @@ func TestCircle(t *testing.T) {
 	Convey("Created user", t, func() {
 
 		user := &sw.User{
+			Username: "testor",
 			Email: "test@gom.ua",
 			Password:"123",
 		}
@@ -45,13 +46,13 @@ func TestCircle(t *testing.T) {
 
 		buf := bytes.NewBuffer(data)
 
-		t.Log(ts.URL)
 		req, err := http.NewRequest("POST", ts.URL+ "/v2/user", buf)
 		So(err, ShouldBeNil)
 
 		resp, err := client.Do(req)
 
 		So(err, ShouldBeNil)
+		defer resp.Body.Close()
 		So(resp.StatusCode, ShouldEqual, http.StatusOK)
 
 		actual := &sw.ApiResponse{}
@@ -60,5 +61,18 @@ func TestCircle(t *testing.T) {
 
 		So(actual.Code, ShouldEqual, expect.Code)
 		So(actual.Message, ShouldEqual, expect.Message)
+	})
+
+	Convey("Get user", t, func() {
+
+		req, _ := http.NewRequest("GET", ts.URL+ "/v2/user/testor", nil)
+		req.Header.Add("Accept", "application/json")
+		resp, err := client.Do(req)
+
+		So(err, ShouldBeNil)
+
+		//So(err, ShouldBeNil)
+		defer resp.Body.Close()
+		So(resp.StatusCode, ShouldEqual, http.StatusOK)
 	})
 }

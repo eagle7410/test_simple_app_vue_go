@@ -22,8 +22,13 @@ type (
 		// User Status
 		UserStatus int32 `json:"userStatus,omitempty"`
 		IsNew bool
+
 	}
 )
+
+func (i *User) LoadByName (name string) error {
+	return  DB.QueryRow("SELECT * FROM users WHERE Username=?", name).Scan(*i)
+}
 
 func (i *User) insert () (insertId int64, err error) {
 	result, err := DB.Exec(
@@ -52,6 +57,8 @@ func (i *User) Save() (Id int64, err error) {
 
 		return i.Id, err
 	}
+
+	// TODO: clear need login update
 
 	return 0, nil
 }
