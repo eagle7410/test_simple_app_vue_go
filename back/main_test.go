@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	. "github.com/smartystreets/goconvey/convey"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	sw "test_simple_app_vue_go/back/go"
@@ -13,6 +14,17 @@ import (
 
 
 func TestCircle(t *testing.T) {
+	err := sw.ENV.Init()
+
+	if (err != nil) {
+		log.Fatalf("[0;31m Error on initializing envirement: %s :[39m", err)
+	}
+
+	err = sw.DatabaseInit()
+
+	if (err != nil) {
+		log.Fatalf("[0;31m Error on initializing database connection: %s :[39m", err)
+	}
 
 	client := &http.Client{}
 	router := sw.NewRouter()
@@ -20,6 +32,7 @@ func TestCircle(t *testing.T) {
 	defer ts.Close()
 
 	Convey("App run", t, func() {
+
 		req, err := http.NewRequest("GET", ts.URL+ "/v2/", nil)
 		So(err, ShouldBeNil)
 
@@ -66,6 +79,9 @@ func TestCircle(t *testing.T) {
 	Convey("Get user", t, func() {
 
 		req, _ := http.NewRequest("GET", ts.URL+ "/v2/user/testor", nil)
+		// NOTE this !!
+		req.Close = true
+
 		req.Header.Add("Accept", "application/json")
 		resp, err := client.Do(req)
 

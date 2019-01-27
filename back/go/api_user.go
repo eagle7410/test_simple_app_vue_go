@@ -17,6 +17,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func sendJsonMessage (w http.ResponseWriter, message string, code int) {
@@ -44,16 +45,16 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := User{IsNew:true,}
+	user := User{}
 
 	err = json.Unmarshal(body, &user)
-
-	fmt.Printf("UNAME %v",user.Username)
 
 	if err != nil {
 		sendJsonMessage(w, "Bad request json", http.StatusBadRequest)
 		return
 	}
+
+	user.IsNew = true
 
 	_, err = user.Save()
 
@@ -86,7 +87,7 @@ func GetUserByName(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 
 		if IsDbQueryEmpty(err) {
-			sendJsonMessage(w, "Not user not found", http.StatusNotFound)
+			sendJsonMessage(w, "User "+ username +" not found ", http.StatusNotFound)
 			return
 		}
 
@@ -96,7 +97,9 @@ func GetUserByName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendJsonMessage(w, "Hello " + username, http.StatusOK)
+	str := strconv.FormatInt(user.Id, 10)
+
+	sendJsonMessage(w, "Usr ID " + str, http.StatusOK)
 }
 
 func LoginUser(w http.ResponseWriter, r *http.Request) {

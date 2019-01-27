@@ -27,14 +27,13 @@ type (
 )
 
 func (i *User) LoadByName (name string) error {
-	return  DB.QueryRow("SELECT * FROM users WHERE Username=?", name).Scan(*i)
-}
 
-func (i *User) insert () (insertId int64, err error) {
-	result, err := DB.Exec(
-		"INSERT INTO users (Username, FirstName, LastName, Email, Password, Phone, UserStatus) " +
-			"VALUES(?, ?, ?, ?, ?, ?, ?)",
-		&i.Username,
+	i.Username = name
+
+	row := DB.QueryRow("SELECT Id, FirstName, LastName, Email,Password, Phone, UserStatus FROM users WHERE Username=? LIMIT 1", name)
+
+	return row.Scan(
+		&i.Id,
 		&i.FirstName,
 		&i.LastName,
 		&i.Email,
@@ -42,6 +41,27 @@ func (i *User) insert () (insertId int64, err error) {
 		&i.Phone,
 		&i.UserStatus,
 	)
+}
+
+func (i *User) insert () (insertId int64, err error) {
+
+	query, err := DB.Prepare("INSERT INTO users (Username, FirstName, LastName, Email, Password, Phone, UserStatus) VALUES(?, ?, ?, ?, ?, ?, ?)")
+
+	if err != nil {
+		return 0, err
+	}
+
+	defer query.Close() // Close the statement when leave func to release connection
+
+	result, err := query.Exec(
+		&i.Username,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.Password,
+		&i.Phone,
+		&i.UserStatus,
+	) // Insert values
 
 	if err != nil {
 		return 0, err
@@ -53,9 +73,7 @@ func (i *User) insert () (insertId int64, err error) {
 func (i *User) Save() (Id int64, err error) {
 
 	if i.IsNew {
-		i.Id, err = i.insert()
-
-		return i.Id, err
+		return i.insert()
 	}
 
 	// TODO: clear need login update

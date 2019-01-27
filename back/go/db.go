@@ -23,7 +23,7 @@ func DatabaseInit () error {
 	DB, err = sql.Open("mysql", connectionString)
 
 	if err != nil {
-	return err;
+		return err;
 	}
 
 	DB.SetMaxIdleConns(100)
