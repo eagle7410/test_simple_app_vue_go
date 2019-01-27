@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	. "github.com/smartystreets/goconvey/convey"
 	"io/ioutil"
 	"log"
@@ -12,6 +13,23 @@ import (
 	"testing"
 )
 
+func logErrFatal (place string,err error) {
+	if err != nil {
+		log.Fatalf("[0;31m Error on %s: %s :[39m", place, err)
+	}
+}
+
+func clearUsers()   {
+	result, err := sw.DB.Exec("DELETE from users")
+
+	logErrFatal("ClearUsers", err)
+
+	count, err := result.RowsAffected()
+
+	logErrFatal("ClearUsers", err)
+
+	fmt.Printf("Count delete %s \n", string(count))
+}
 
 func TestCircle(t *testing.T) {
 	err := sw.ENV.Init()
@@ -25,6 +43,8 @@ func TestCircle(t *testing.T) {
 	if (err != nil) {
 		log.Fatalf("[0;31m Error on initializing database connection: %s :[39m", err)
 	}
+
+	clearUsers();
 
 	client := &http.Client{}
 	router := sw.NewRouter()
@@ -69,7 +89,7 @@ func TestCircle(t *testing.T) {
 		So(resp.StatusCode, ShouldEqual, http.StatusOK)
 
 		actual := &sw.ApiResponse{}
-		expect := &sw.ApiResponse{Code:http.StatusOK, Message:"Successful operation"}
+		expect := &sw.ApiResponse{Code:http.StatusOK, Message:sw.MessageOk}
 		json.NewDecoder(resp.Body).Decode(actual)
 
 		So(actual.Code, ShouldEqual, expect.Code)
@@ -78,7 +98,9 @@ func TestCircle(t *testing.T) {
 
 	Convey("Get user", t, func() {
 
-		req, _ := http.NewRequest("GET", ts.URL+ "/v2/user/testor", nil)
+		userName := "testor"
+
+		req, _ := http.NewRequest("GET", ts.URL+ "/v2/user/" + userName, nil)
 		// NOTE this !!
 		req.Close = true
 
@@ -86,9 +108,18 @@ func TestCircle(t *testing.T) {
 		resp, err := client.Do(req)
 
 		So(err, ShouldBeNil)
-
-		//So(err, ShouldBeNil)
-		defer resp.Body.Close()
 		So(resp.StatusCode, ShouldEqual, http.StatusOK)
+
+		defer resp.Body.Close()
+
+		userResponse := sw.User{}
+		actual := &sw.ApiResponse{Data:&userResponse}
+		expect := &sw.ApiResponse{Code:http.StatusOK, Message:sw.MessageOk}
+
+		json.NewDecoder(resp.Body).Decode(actual)
+
+		So(actual.Code, ShouldEqual, expect.Code)
+		So(actual.Message, ShouldEqual, expect.Message)
+		So(userResponse.Username, ShouldEqual, userName)
 	})
 }

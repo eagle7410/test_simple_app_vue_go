@@ -17,16 +17,27 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 )
 
-func sendJsonMessage (w http.ResponseWriter, message string, code int) {
+const MessageOk = "Successful operation"
+
+func sendJsonMessage (w http.ResponseWriter,  code int, message string, payload interface{}) {
+	var data []byte
+
 	w.WriteHeader(code)
 
-	data, _ :=json.Marshal(ApiResponse{
-		Code: code,
-		Message: message,
-	})
+	if payload == nil {
+		data, _ =json.Marshal(ApiResponse{
+			Code: code,
+			Message: message,
+		})
+	} else {
+		data, _ = json.Marshal(ApiResponse{
+			Code: code,
+			Message: message,
+			Data: payload,
+		})
+	}
 
 	fmt.Fprintf(w, string(data))
 }
@@ -41,7 +52,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 
 	if err != nil {
-		sendJsonMessage(w, "Bad request", http.StatusBadRequest)
+		sendJsonMessage(w,  http.StatusBadRequest, "Bad request", nil)
 		return
 	}
 
@@ -50,7 +61,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(body, &user)
 
 	if err != nil {
-		sendJsonMessage(w, "Bad request json", http.StatusBadRequest)
+		sendJsonMessage(w, http.StatusBadRequest, "Bad request json", nil)
 		return
 	}
 
@@ -59,20 +70,20 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	_, err = user.Save()
 
 	if err != nil {
-		sendJsonMessage(w, "Not user save to database", http.StatusInternalServerError)
+		sendJsonMessage(w, http.StatusInternalServerError, "Not user save to database", nil)
 		logErr(err)
 
 		return
 	}
 
-	sendJsonMessage(w, "Successful operation", http.StatusOK)
+	sendJsonMessage(w, http.StatusOK, MessageOk, nil)
 
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "successful operation")
+	fmt.Fprintf(w, MessageOk)
 }
 
 func GetUserByName(w http.ResponseWriter, r *http.Request) {
@@ -87,19 +98,17 @@ func GetUserByName(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 
 		if IsDbQueryEmpty(err) {
-			sendJsonMessage(w, "User "+ username +" not found ", http.StatusNotFound)
+			sendJsonMessage(w, http.StatusNotFound, "User "+ username +" not found ", nil)
 			return
 		}
 
-		sendJsonMessage(w, "Not load user from database", http.StatusInternalServerError)
+		sendJsonMessage(w, http.StatusInternalServerError, "Not load user from database", nil)
 		logErr(err)
 
 		return
 	}
-
-	str := strconv.FormatInt(user.Id, 10)
-
-	sendJsonMessage(w, "Usr ID " + str, http.StatusOK)
+	fmt.Println(user)
+	sendJsonMessage(w, http.StatusOK, MessageOk, user)
 }
 
 func LoginUser(w http.ResponseWriter, r *http.Request) {

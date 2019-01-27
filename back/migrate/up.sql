@@ -1,6 +1,6 @@
 CREATE TABLE users (
   Id INT AUTO_INCREMENT PRIMARY KEY ,
-  Username varchar(50),
+  Username varchar(50) UNIQUE ,
   FirstName varchar (50),
   LastName varchar (50),
   Email varchar (150) not null,

@@ -10,11 +10,10 @@
 
 package swagger
 
-type ApiResponse struct {
-
-	Code int `json:"code,omitempty"`
-
-	Type_ string `json:"type,omitempty"`
-
-	Message string `json:"message,omitempty"`
-}
+type (
+	ApiResponse struct {
+		Code int `json:"code,omitempty"`
+		Type_ string `json:"type,omitempty"`
+		Message string `json:"message,omitempty"`
+		Data interface{} `json:"data,omitempty"`
+})
