@@ -10,6 +10,8 @@
 
 package swagger
 
+import "database/sql"
+
 type (
 	User struct {
 		Id int64 `json:"id,omitempty"`
@@ -79,4 +81,8 @@ func (i *User) Save() (Id int64, err error) {
 	// TODO: clear need login update
 
 	return 0, nil
+}
+
+func DeleteUserByName (name *string) (result sql.Result, err error) {
+	return DB.Exec("DELETE FROM users WHERE Username = ?", name)
 }

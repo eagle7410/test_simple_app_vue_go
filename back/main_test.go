@@ -32,6 +32,9 @@ func clearUsers()   {
 }
 
 func TestCircle(t *testing.T) {
+
+	userName := "testor"
+
 	err := sw.ENV.Init()
 
 	if (err != nil) {
@@ -69,7 +72,7 @@ func TestCircle(t *testing.T) {
 	Convey("Created user", t, func() {
 
 		user := &sw.User{
-			Username: "testor",
+			Username: userName,
 			Email: "test@gom.ua",
 			Password:"123",
 		}
@@ -98,8 +101,6 @@ func TestCircle(t *testing.T) {
 
 	Convey("Get user", t, func() {
 
-		userName := "testor"
-
 		req, _ := http.NewRequest("GET", ts.URL+ "/v2/user/" + userName, nil)
 		// NOTE this !!
 		req.Close = true
@@ -122,4 +123,26 @@ func TestCircle(t *testing.T) {
 		So(actual.Message, ShouldEqual, expect.Message)
 		So(userResponse.Username, ShouldEqual, userName)
 	})
+
+	Convey("Get delete user", t, func() {
+		req, _ := http.NewRequest("DELETE", ts.URL+ "/v2/user/" + userName, nil)
+		// NOTE this !!
+		req.Close = true
+
+		req.Header.Add("Accept", "application/json")
+		resp, err := client.Do(req)
+
+		So(err, ShouldBeNil)
+		So(resp.StatusCode, ShouldEqual, http.StatusOK)
+
+		defer resp.Body.Close()
+
+		actual := &sw.ApiResponse{}
+		expect := &sw.ApiResponse{Code:http.StatusOK, Message:sw.MessageOk}
+
+		json.NewDecoder(resp.Body).Decode(actual)
+
+		So(actual.Code, ShouldEqual, expect.Code)
+		So(actual.Message, ShouldEqual, expect.Message)
+	});
 }

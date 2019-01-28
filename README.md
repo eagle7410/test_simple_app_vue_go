@@ -2,6 +2,10 @@
 
 App for test
 Go test frame work is [goconvey](http://goconvey.co/)
+Command run test from binary 
+```
+ $GOPATH/bin/goconvey
+```
 ## Add ext
 ```bash
 go get -u github.com/pressly/goose/cmd/goose

@@ -77,19 +77,27 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sendJsonMessage(w, http.StatusOK, MessageOk, nil)
-
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, MessageOk)
+	vars := mux.Vars(r)
+	username := vars["username"]
+
+	_, err := DeleteUserByName(&username)
+
+	if err != nil {
+		sendJsonMessage(w, http.StatusInternalServerError, "Not remove user from database", nil)
+		logErr(err)
+	}
+
+	sendJsonMessage(w, http.StatusOK, MessageOk, nil)
 }
 
 func GetUserByName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	vars := mux.Vars(r)
-	username := vars["username"] // the book title slug
+	username := vars["username"]
 
 	user := User{IsNew:false,}
 
@@ -107,7 +115,7 @@ func GetUserByName(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-	fmt.Println(user)
+
 	sendJsonMessage(w, http.StatusOK, MessageOk, user)
 }
 
